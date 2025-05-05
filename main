@@ -1,0 +1,108 @@
+#include <Servo.h>
+
+// Определение пинов для сервоприводов
+const int servo1Pin = 3;  // Основание
+const int servo2Pin = 5;  // Плечо
+const int servo3Pin = 6;  // Локоть
+const int servo4Pin = 9;  // Захват
+
+// Определение пинов для джойстиков
+// Джойстик 1 (управление основанием и плечом)
+const int joy1XPin = A0;  // Ось X - основание
+const int joy1YPin = A1;  // Ось Y - плечо
+const int joy1SWPin = 2;  // Кнопка (не используется в этом примере)
+
+// Джойстик 2 (управление локтем и захватом)
+const int joy2XPin = A2;  // Ось X - локоть
+const int joy2YPin = A3;  // Ось Y - захват
+const int joy2SWPin = 4;  // Кнопка (не используется в этом примере)
+
+// Создание объектов сервоприводов
+Servo servo1;  // Основание
+Servo servo2;  // Плечо
+Servo servo3;  // Локоть
+Servo servo4;  // Захват
+
+// Начальные положения сервоприводов
+int servo1Pos = 90;  // Основание (0-180)
+int servo2Pos = 90;  // Плечо (0-180)
+int servo3Pos = 90;  // Локоть (0-180)
+int servo4Pos = 90;  // Захват (0-180)
+
+// Параметры для сглаживания движений
+const int deadZone = 50;  // Мертвая зона джойстиков
+const int stepSize = 2;   // Шаг изменения положения серв
+
+void setup() {
+  // Присоединение сервоприводов к пинам
+  servo1.attach(servo1Pin);
+  servo2.attach(servo2Pin);
+  servo3.attach(servo3Pin);
+  servo4.attach(servo4Pin);
+  
+  // Установка начальных положений
+  servo1.write(servo1Pos);
+  servo2.write(servo2Pos);
+  servo3.write(servo3Pos);
+  servo4.write(servo4Pos);
+  
+  // Настройка пинов кнопок джойстиков (если нужно)
+  pinMode(joy1SWPin, INPUT_PULLUP);
+  pinMode(joy2SWPin, INPUT_PULLUP);
+  
+  // Задержка для стабилизации сервоприводов
+  delay(1000);
+}
+
+void loop() {
+  // Чтение значений с джойстиков
+  int joy1XVal = analogRead(joy1XPin);
+  int joy1YVal = analogRead(joy1YPin);
+  int joy2XVal = analogRead(joy2XPin);
+  int joy2YVal = analogRead(joy2YPin);
+  
+  // Управление основанием (серво1) по оси X первого джойстика
+  if (joy1XVal < (512 - deadZone)) {
+    servo1Pos += stepSize;
+    if (servo1Pos > 180) servo1Pos = 180;
+  } else if (joy1XVal > (512 + deadZone)) {
+    servo1Pos -= stepSize;
+    if (servo1Pos < 0) servo1Pos = 0;
+  }
+  
+  // Управление плечом (серво2) по оси Y первого джойстика
+  if (joy1YVal < (512 - deadZone)) {
+    servo2Pos += stepSize;
+    if (servo2Pos > 180) servo2Pos = 180;
+  } else if (joy1YVal > (512 + deadZone)) {
+    servo2Pos -= stepSize;
+    if (servo2Pos < 0) servo2Pos = 0;
+  }
+  
+  // Управление локтем (серво3) по оси X второго джойстика
+  if (joy2XVal < (512 - deadZone)) {
+    servo3Pos += stepSize;
+    if (servo3Pos > 180) servo3Pos = 180;
+  } else if (joy2XVal > (512 + deadZone)) {
+    servo3Pos -= stepSize;
+    if (servo3Pos < 0) servo3Pos = 0;
+  }
+  
+  // Управление захватом (серво4) по оси Y второго джойстика
+  if (joy2YVal < (512 - deadZone)) {
+    servo4Pos += stepSize;
+    if (servo4Pos > 180) servo4Pos = 180;
+  } else if (joy2YVal > (512 + deadZone)) {
+    servo4Pos -= stepSize;
+    if (servo4Pos < 0) servo4Pos = 0;
+  }
+  
+  // Применение новых положений сервоприводов
+  servo1.write(servo1Pos);
+  servo2.write(servo2Pos);
+  servo3.write(servo3Pos);
+  servo4.write(servo4Pos);
+  
+  // Небольшая задержка для плавности
+  delay(20);
+}
